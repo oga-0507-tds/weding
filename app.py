@@ -15,8 +15,14 @@ st.write("---")
 
 controller = WeddingController()
 
+if "search_executed" not in st.session_state:
+    st.session_state.search_executed = False
 if "venue_list_loaded" not in st.session_state:
     st.session_state.venue_list_loaded = False
+
+
+def close_sidebar():
+    st.session_state.search_executed = True
 
 
 def load_venue_list():
@@ -27,7 +33,8 @@ def clear_venue_list():
     st.session_state.venue_list_loaded = False
 
 # モバイル向けフォントサイズ用のスタイル
-def inject_mobile_styles():
+def inject_mobile_styles(hide_sidebar: bool = False):
+    hide_rule = "section[data-testid='stSidebar']{display:none !important;}" if hide_sidebar else ""
     st.markdown(
         f"""<style>
         html, body, .stApp, .block-container, .main {{ font-size: 13px !important; }}
@@ -37,6 +44,9 @@ def inject_mobile_styles():
         .stButton>button, .element-container {{ font-size: 0.95rem !important; }}
         .css-1fdr9ef, .css-1nw5x17, .css-k1vhr4 {{ line-height: 1.4 !important; }}
         .css-i8vgj8, .css-14xtw13, .css-1wgvfgp {{ padding: 0.6rem 0.8rem !important; }}
+        .stMetricValue {{ font-size: 1.5rem !important; font-weight: 700 !important; }}
+        .stMetricLabel {{ font-size: 1.15rem !important; }}
+        {hide_rule}
     /* selectboxのテキスト入力を無効にして、ドロップダウン選択だけにする */
     [data-testid="stSelectbox"] input[type="text"] {{
         pointer-events: none !important;
@@ -52,7 +62,7 @@ def inject_mobile_styles():
         unsafe_allow_html=True,
     )
 
-inject_mobile_styles()
+inject_mobile_styles(hide_sidebar=st.session_state.search_executed)
 
 # 画面レイアウト（スマホ対応：入力をサイドバーに移動）
 with st.sidebar:
@@ -105,7 +115,7 @@ with st.sidebar:
     cost_type = st.radio("4. データの区分", ["すべて", "本番", "下見"], index=0)
 
     st.write("---")
-    execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True)
+    execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True, on_click=close_sidebar)
 
 venue_by_name = {v.name: v for v in venues}
 
