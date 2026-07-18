@@ -17,6 +17,7 @@ class VenueScraperService:
 
     BASE_URL = "https://www.mwed.jp"
     CHIBA_VENUES_URL = f"{BASE_URL}/shikijo/shutoken/chiba/"
+    TOKYO_VENUES_URL = f"{BASE_URL}/shikijo/shutoken/tokyo/"
 
     def __init__(self, interval_seconds: float = 1.0):
         self.interval_seconds = interval_seconds
@@ -28,16 +29,17 @@ class VenueScraperService:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
 
-    def fetch_chiba_venues(self, max_pages: int = 50) -> List[VenueDTO]:
-        """千葉県の結婚式場一覧を全ページ巡回して取得するメインメソッド"""
+    def fetch_venues(self, region: str = "chiba", max_pages: int = 50) -> List[VenueDTO]:
+        """指定エリアの結婚式場一覧を全ページ巡回して取得するメインメソッド"""
+        base_url = self.CHIBA_VENUES_URL if region == "chiba" else self.TOKYO_VENUES_URL
         all_venues: List[VenueDTO] = []
         seen_urls = set()  # 重複URLを完全にスキップするためのセット
 
-        self.logger.info("件数のズレを修正した精密版で抽出中（重複は自動スキップ）...")
+        self.logger.info(f"件数のズレを修正した精密版で抽出中（重複は自動スキップ）... {region}エリア")
 
         for page in range(1, max_pages + 1):
             # 1ページ目はpageなし、2ページ目以降は /page2/ の形式
-            url = self.CHIBA_VENUES_URL if page == 1 else f"{self.CHIBA_VENUES_URL}page{page}/"
+            url = base_url if page == 1 else f"{base_url}page{page}/"
             self.logger.info(f"{page}ページ目を読み込み中: {url}")
 
             # 1. HTMLの取得
