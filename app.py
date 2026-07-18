@@ -136,10 +136,12 @@ else:
 
                     if summary_dto:
                         if summary_dto.matched_count > 0:
-                            st.metric(
+                            col1, col2 = st.columns([4, 1])
+                            col1.metric(
                                 label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
                                 value=f"{summary_dto.average_cost:,.1f} 円"
                             )
+                            col2.markdown(f"[式場ページを開く]({selected_venue.detail_url})")
                             st.success(f"{name} の条件に合致する明細が {summary_dto.matched_count} 件見つかりました。")
 
                             with st.expander("🔗 根拠となった費用明細（口コミ）リンク", expanded=False):
@@ -149,16 +151,20 @@ else:
                                         f"**{detail.amount:,}円** ➔ [明細ページを開く]({detail.detail_url})"
                                     )
                         else:
-                            st.metric(
+                            col1, col2 = st.columns([4, 1])
+                            col1.metric(
                                 label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
                                 value="該当データなし"
                             )
+                            col2.markdown(f"[式場ページを開く]({selected_venue.detail_url})")
                             st.warning(f"⚠️ {name} に該当する費用明細データは見つかりませんでした。")
                     else:
-                        st.metric(
+                        col1, col2 = st.columns([4, 1])
+                        col1.metric(
                             label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
                             value="解析結果なし"
                         )
+                        col2.markdown(f"[式場ページを開く]({selected_venue.detail_url})")
                         st.warning(f"⚠️ {name} の解析結果が取得できませんでした。")
                 except Exception as e:
                     st.error(f"「{name}」の解析中にエラーが発生しました: {e}")
