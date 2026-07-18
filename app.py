@@ -15,6 +15,32 @@ st.write("---")
 
 controller = WeddingController()
 
+if "search_executed" not in st.session_state:
+    st.session_state.search_executed = False
+
+
+def close_sidebar():
+    st.session_state.search_executed = True
+
+
+def open_sidebar():
+    st.session_state.search_executed = False
+
+# モバイル向けフォントサイズとサイドバー自動閉じ用のスタイル
+def inject_mobile_styles(hide_sidebar: bool = False):
+    hide_rule = "section[data-testid='stSidebar']{display:none !important;}" if hide_sidebar else ""
+    st.markdown(
+        f"""<style>
+        html, body, .stApp, .block-container, .main {{ font-size: 14px !important; }}
+        h1, h2, h3, h4, h5, h6, p, span, label, button, input, select, textarea {{ font-size: 0.95rem !important; }}
+        .stButton>button, .element-container {{ font-size: 0.95rem !important; }}
+        .css-1fdr9ef, .css-1nw5x17, .css-k1vhr4 {{ line-height: 1.4 !important; }}
+        .css-i8vgj8, .css-14xtw13, .css-1wgvfgp {{ padding: 0.65rem 0.85rem !important; }}
+        {hide_rule}
+        </style>""",
+        unsafe_allow_html=True,
+    )
+
 # STEP 1: 式場一覧の取得
 try:
     venues = controller.get_all_venues()
@@ -58,10 +84,12 @@ with st.sidebar:
     cost_type = st.radio("4. データの区分", ["すべて", "本番", "下見"], index=0)
     
     st.write("---")
-    execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True)
-    st.caption("※スマホでは入力はここにまとまります。結果は下に表示されます。")
+    execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True, on_click=close_sidebar)
 
 st.header("📊 解析結果")
+
+if st.session_state.search_executed:
+    st.button("🔧 メニューを再表示", on_click=open_sidebar)
 
 if execute_button:
     if not selected_names:
