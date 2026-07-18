@@ -43,6 +43,12 @@ def inject_mobile_styles(hide_sidebar: bool = False):
     [data-testid="stSelectbox"] input[type="text"] {{
         pointer-events: none !important;
         caret-color: transparent !important;
+        touch-action: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+    }}
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div > div > div > div:nth-child(1) {{
+        pointer-events: auto !important;
     }}
         </style>""",
         unsafe_allow_html=True,
