@@ -50,7 +50,26 @@ def inject_mobile_styles(hide_sidebar: bool = False):
     [data-testid="stSelectbox"] div[data-baseweb="select"] > div > div > div > div:nth-child(1) {{
         pointer-events: auto !important;
     }}
-        </style>""",
+        </style>
+        <script>
+        const setReadonlySelectboxInputs = () => {{
+            document.querySelectorAll('[data-testid="stSelectbox"] input[type="text"]').forEach(el => {{
+                if (!el.hasAttribute('data-readonly-set')) {{
+                    el.setAttribute('readonly', 'readonly');
+                    el.readOnly = true;
+                    el.setAttribute('inputmode', 'none');
+                    el.setAttribute('tabindex', '-1');
+                    el.setAttribute('data-readonly-set', 'true');
+                    el.style.caretColor = 'transparent';
+                    el.style.pointerEvents = 'none';
+                }}
+            }});
+        }};
+        const observer = new MutationObserver(setReadonlySelectboxInputs);
+        observer.observe(document.body, {{ childList: true, subtree: true }});
+        window.addEventListener('load', setReadonlySelectboxInputs);
+        setTimeout(setReadonlySelectboxInputs, 1000);
+        </script>""",
         unsafe_allow_html=True,
     )
 
