@@ -80,8 +80,8 @@ with st.sidebar:
     current_year = datetime.now().year + 1
     years = list(range(2010, current_year))
     months = list(range(1, 13))
-    selected_year = st.pills("年", years, index=len(years)-1)
-    selected_month = st.pills("月", months, index=0)
+    selected_year = st.selectbox("年", years, index=len(years)-1)
+    selected_month = st.selectbox("月", months, index=0)
     since_date_str = f"{selected_year}年{selected_month:02d}月"
     
     # 4. 区分の選択
