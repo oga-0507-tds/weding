@@ -119,17 +119,18 @@ with st.sidebar:
     st.write("---")
     execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True, on_click=close_sidebar)
 
-if not selected_areas:
-    st.info("サイドバーからエリアを選択してください。")
-    st.stop()
-
 venue_by_name = {v.name: v for v in venues}
 
 st.header("検索結果")
 
+# サイドメニューが閉じられていても常に表示するボタン
 st.button("🔧 条件を変更して再検索する", on_click=open_sidebar)
 
-if execute_button:
+if not selected_areas:
+    st.info("サイドバーからエリアを選択してください。")
+elif not execute_button:
+    st.info("← サイドバーのフォームで条件を設定し、「平均金額を計算する」ボタンを押してください。")
+else:
     if not selected_names:
         st.warning("⚠️ 式場が選択されていません。サイドバーから1つ以上選択してください。")
     else:
