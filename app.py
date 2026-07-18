@@ -15,18 +15,8 @@ st.write("---")
 
 controller = WeddingController()
 
-if "search_executed" not in st.session_state:
-    st.session_state.search_executed = False
 if "venue_list_loaded" not in st.session_state:
     st.session_state.venue_list_loaded = False
-
-
-def close_sidebar():
-    st.session_state.search_executed = True
-
-
-def open_sidebar():
-    st.session_state.search_executed = False
 
 
 def load_venue_list():
@@ -36,9 +26,8 @@ def load_venue_list():
 def clear_venue_list():
     st.session_state.venue_list_loaded = False
 
-# モバイル向けフォントサイズとサイドバー自動閉じ用のスタイル
-def inject_mobile_styles(hide_sidebar: bool = False):
-    hide_rule = "section[data-testid='stSidebar']{display:none !important;}" if hide_sidebar else ""
+# モバイル向けフォントサイズ用のスタイル
+def inject_mobile_styles():
     st.markdown(
         f"""<style>
         html, body, .stApp, .block-container, .main {{ font-size: 13px !important; }}
@@ -48,7 +37,6 @@ def inject_mobile_styles(hide_sidebar: bool = False):
         .stButton>button, .element-container {{ font-size: 0.95rem !important; }}
         .css-1fdr9ef, .css-1nw5x17, .css-k1vhr4 {{ line-height: 1.4 !important; }}
         .css-i8vgj8, .css-14xtw13, .css-1wgvfgp {{ padding: 0.6rem 0.8rem !important; }}
-        {hide_rule}
     /* selectboxのテキスト入力を無効にして、ドロップダウン選択だけにする */
     [data-testid="stSelectbox"] input[type="text"] {{
         pointer-events: none !important;
@@ -64,7 +52,7 @@ def inject_mobile_styles(hide_sidebar: bool = False):
         unsafe_allow_html=True,
     )
 
-inject_mobile_styles(hide_sidebar=st.session_state.search_executed)
+inject_mobile_styles()
 
 # 画面レイアウト（スマホ対応：入力をサイドバーに移動）
 with st.sidebar:
@@ -117,14 +105,11 @@ with st.sidebar:
     cost_type = st.radio("4. データの区分", ["すべて", "本番", "下見"], index=0)
 
     st.write("---")
-    execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True, on_click=close_sidebar)
+    execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True)
 
 venue_by_name = {v.name: v for v in venues}
 
 st.header("検索結果")
-
-# サイドメニューが閉じられていても常に表示するボタン
-st.button("🔧 条件を変更して再検索する", on_click=open_sidebar)
 
 if not selected_areas:
     st.info("サイドバーからエリアを選択してください。")
@@ -155,7 +140,7 @@ else:
                                 label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
                                 value=f"{summary_dto.average_cost:,.1f} 円"
                             )
-                            st.success(f"条件に合致する明細が {summary_dto.matched_count} 件見つかりました。")
+                            st.success(f"{name} の条件に合致する明細が {summary_dto.matched_count} 件見つかりました。")
 
                             with st.expander("🔗 根拠となった費用明細（口コミ）リンク", expanded=False):
                                 for idx, detail in enumerate(summary_dto.details, start=1):
@@ -164,9 +149,17 @@ else:
                                         f"**{detail.amount:,}円** ➔ [明細ページを開く]({detail.detail_url})"
                                     )
                         else:
-                            st.warning("⚠️ 指定された条件に合致する費用明細データが見つかりませんでした。")
+                            st.metric(
+                                label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
+                                value="該当データなし"
+                            )
+                            st.warning(f"⚠️ {name} に該当する費用明細データは見つかりませんでした。")
                     else:
-                        st.warning("⚠️ 解析結果が取得できませんでした。")
+                        st.metric(
+                            label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
+                            value="解析結果なし"
+                        )
+                        st.warning(f"⚠️ {name} の解析結果が取得できませんでした。")
                 except Exception as e:
                     st.error(f"「{name}」の解析中にエラーが発生しました: {e}")
 
