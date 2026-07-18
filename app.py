@@ -31,17 +31,19 @@ def inject_mobile_styles(hide_sidebar: bool = False):
     hide_rule = "section[data-testid='stSidebar']{display:none !important;}" if hide_sidebar else ""
     st.markdown(
         f"""<style>
-        html, body, .stApp, .block-container, .main {{ font-size: 12px !important; }}
-        h1 {{ font-size: 1.4rem !important; }}
-        h2, h3 {{ font-size: 1.1rem !important; }}
-        h4, h5, h6, p, span, label, button, input, select, textarea {{ font-size: 0.85rem !important; }}
-        .stButton>button, .element-container {{ font-size: 0.85rem !important; }}
-        .css-1fdr9ef, .css-1nw5x17, .css-k1vhr4 {{ line-height: 1.35 !important; }}
-        .css-i8vgj8, .css-14xtw13, .css-1wgvfgp {{ padding: 0.5rem 0.7rem !important; }}
+        html, body, .stApp, .block-container, .main {{ font-size: 13px !important; }}
+        h1 {{ font-size: 1.45rem !important; }}
+        h2, h3 {{ font-size: 1.15rem !important; }}
+        h4, h5, h6, p, span, label, button, input, select, textarea, .stText, .stMarkdown {{ font-size: 0.95rem !important; }}
+        .stButton>button, .element-container {{ font-size: 0.95rem !important; }}
+        .css-1fdr9ef, .css-1nw5x17, .css-k1vhr4 {{ line-height: 1.4 !important; }}
+        .css-i8vgj8, .css-14xtw13, .css-1wgvfgp {{ padding: 0.6rem 0.8rem !important; }}
         {hide_rule}
         </style>""",
         unsafe_allow_html=True,
     )
+
+inject_mobile_styles(hide_sidebar=st.session_state.search_executed)
 
 # STEP 1: 式場一覧の取得
 try:
