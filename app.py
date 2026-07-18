@@ -69,9 +69,9 @@ with st.sidebar:
     min_guests, max_guests = st.slider(
         "下限と上限を動かして指定してください",
         min_value=0,
-        max_value=300,
+        max_value=150,
         value=(30, 50),
-        step=5
+        step=10
     )
     st.caption(f"現在の指定： **{min_guests}人 〜 {max_guests}人**")
     
@@ -80,8 +80,8 @@ with st.sidebar:
     current_year = datetime.now().year + 1
     years = list(range(2010, current_year))
     months = list(range(1, 13))
-    selected_year = st.selectbox("年", years, index=len(years)-1)
-    selected_month = st.selectbox("月", months, index=0)
+    selected_year = st.pills("年", years, index=len(years)-1)
+    selected_month = st.pills("月", months, index=0)
     since_date_str = f"{selected_year}年{selected_month:02d}月"
     
     # 4. 区分の選択
@@ -90,7 +90,7 @@ with st.sidebar:
     st.write("---")
     execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True, on_click=close_sidebar)
 
-st.header("📊 解析結果")
+st.header("検索結果")
 
 if st.session_state.search_executed:
     st.button("🔧 メニューを再表示", on_click=open_sidebar)
