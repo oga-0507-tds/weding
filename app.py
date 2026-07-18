@@ -39,6 +39,11 @@ def inject_mobile_styles(hide_sidebar: bool = False):
         .css-1fdr9ef, .css-1nw5x17, .css-k1vhr4 {{ line-height: 1.4 !important; }}
         .css-i8vgj8, .css-14xtw13, .css-1wgvfgp {{ padding: 0.6rem 0.8rem !important; }}
         {hide_rule}
+    /* selectboxのコンテナ内にある入力欄だけを非表示にする */
+    /* st.selectboxは "stSelectbox" というクラス名を持つdiv配下にある */
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div > div > div > div:nth-child(2) {
+        display: none !important;
+    }
         </style>""",
         unsafe_allow_html=True,
     )
