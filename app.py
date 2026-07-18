@@ -169,6 +169,4 @@ else:
                         st.warning("⚠️ 解析結果が取得できませんでした。")
                 except Exception as e:
                     st.error(f"「{name}」の解析中にエラーが発生しました: {e}")
-else:
-    st.info("← サイドバーのフォームで条件を設定し、「平均金額を計算する」ボタンを押してください。")
 
