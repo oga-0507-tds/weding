@@ -17,6 +17,8 @@ controller = WeddingController()
 
 if "search_executed" not in st.session_state:
     st.session_state.search_executed = False
+if "venue_list_loaded" not in st.session_state:
+    st.session_state.venue_list_loaded = False
 
 
 def close_sidebar():
@@ -25,6 +27,14 @@ def close_sidebar():
 
 def open_sidebar():
     st.session_state.search_executed = False
+
+
+def load_venue_list():
+    st.session_state.venue_list_loaded = True
+
+
+def clear_venue_list():
+    st.session_state.venue_list_loaded = False
 
 # モバイル向けフォントサイズとサイドバー自動閉じ用のスタイル
 def inject_mobile_styles(hide_sidebar: bool = False):
@@ -43,6 +53,12 @@ def inject_mobile_styles(hide_sidebar: bool = False):
     [data-testid="stSelectbox"] input[type="text"] {{
         pointer-events: none !important;
         caret-color: transparent !important;
+        touch-action: none !important;
+        -webkit-user-select: none !important;
+        user-select: none !important;
+    }}
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div > div > div > div:nth-child(1) {{
+        pointer-events: auto !important;
     }}
         </style>""",
         unsafe_allow_html=True,
@@ -50,26 +66,36 @@ def inject_mobile_styles(hide_sidebar: bool = False):
 
 inject_mobile_styles(hide_sidebar=st.session_state.search_executed)
 
-# STEP 1: 式場一覧の取得
-try:
-    venues = controller.get_all_venues()
-except Exception as e:
-    st.error(f"式場一覧の取得中にエラーが発生しました: {e}")
-    st.stop()
-
 # 画面レイアウト（スマホ対応：入力をサイドバーに移動）
 with st.sidebar:
     st.header("🔍 絞り込み条件")
-    
-    # 1. 式場選択（スマホでも操作しやすいようにサイドバーへ）
-    venue_names = [v.name for v in venues]
+    st.write("## エリア選択")
+    selected_areas = st.multiselect(
+        "表示するエリアを選択してください",
+        ["千葉", "東京"],
+        default=[],
+        help="両方選択すると千葉と東京の両方の式場がリストに含まれます。"
+    )
+
+    if not selected_areas:
+        st.info("エリアを選択してから、式場リストを検索してください。")
+
+    st.write("---")
+    st.write("## 条件設定")
+    venue_names = []
+    venues = []
+    if "千葉" in selected_areas:
+        venues.extend(controller.get_all_venues("chiba"))
+    if "東京" in selected_areas:
+        venues.extend(controller.get_all_venues("tokyo"))
+    venue_names = sorted({v.name for v in venues})
+
     selected_names = st.multiselect(
         "1. 式場を選択してください（複数選択で比較可能）", 
         venue_names,
-        default=[venue_names[0]] if venue_names else []
+        default=[]
     )
-    
-    # 2. 人数範囲指定
+
     st.write("2. 招待人数（範囲指定）")
     min_guests, max_guests = st.slider(
         "下限と上限を動かして指定してください",
@@ -79,8 +105,7 @@ with st.sidebar:
         step=10
     )
     st.caption(f"現在の指定： **{min_guests}人 〜 {max_guests}人**")
-    
-    # 3. 時期（年月）の選択
+
     st.write("3. 時期（年月）以降")
     current_year = datetime.now().year + 1
     years = list(range(2010, current_year))
@@ -88,28 +113,32 @@ with st.sidebar:
     selected_year = st.selectbox("年", years, index=len(years)-1)
     selected_month = st.selectbox("月", months, index=0)
     since_date_str = f"{selected_year}年{selected_month:02d}月"
-    
-    # 4. 区分の選択
+
     cost_type = st.radio("4. データの区分", ["すべて", "本番", "下見"], index=0)
-    
+
     st.write("---")
     execute_button = st.button("🚀 平均金額を計算する", type="primary", use_container_width=True, on_click=close_sidebar)
 
+if not selected_areas:
+    st.info("サイドバーからエリアを選択してください。")
+    st.stop()
+
+venue_by_name = {v.name: v for v in venues}
+
 st.header("検索結果")
 
-if st.session_state.search_executed:
-    st.button("🔧 メニューを再表示", on_click=open_sidebar)
+st.button("🔧 条件を変更して再検索する", on_click=open_sidebar)
 
 if execute_button:
     if not selected_names:
         st.warning("⚠️ 式場が選択されていません。サイドバーから1つ以上選択してください。")
     else:
         with st.spinner("データを解析しています..."):
-            # 選択された式場ごとにループ処理
             for name in selected_names:
-                # 選択された名前に合致する式場オブジェクトを特定
-                selected_venue = next(v for v in venues if v.name == name)
-                
+                selected_venue = venue_by_name.get(name)
+                if not selected_venue:
+                    st.error(f"選択された式場 '{name}' の詳細情報が見つかりませんでした。")
+                    continue
                 try:
                     summary_dto = controller.analyze_venue_costs(
                         detail_url=selected_venue.detail_url,
@@ -141,3 +170,4 @@ if execute_button:
                     st.error(f"「{name}」の解析中にエラーが発生しました: {e}")
 else:
     st.info("← サイドバーのフォームで条件を設定し、「平均金額を計算する」ボタンを押してください。")
+
