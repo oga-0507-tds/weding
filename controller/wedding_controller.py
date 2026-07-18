@@ -10,13 +10,13 @@ class WeddingController:
         self.venue_service = VenueScraperService()
         self.cost_service = CostAnalyzerService()
 
-    def get_all_venues(self) -> List[VenueDTO]:
-        """千葉県の式場一覧を取得する（Controller側で結果をキャッシュ）"""
-        @st.cache_data(show_spinner="千葉県の結婚式場一覧を取得中...")
-        def _cached_fetch():
-            return self.venue_service.fetch_chiba_venues()
+    def get_all_venues(self, region: str = "chiba") -> List[VenueDTO]:
+        """指定エリアの式場一覧を取得する（Controller側で結果をキャッシュ）"""
+        @st.cache_data(show_spinner=f"{region}の結婚式場一覧を取得中...")
+        def _cached_fetch(region_param: str):
+            return self.venue_service.fetch_venues(region_param)
         
-        return _cached_fetch()
+        return _cached_fetch(region)
 
     def analyze_venue_costs(
         self, 
