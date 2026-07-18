@@ -144,9 +144,14 @@ else:
                     if summary_dto:
                         if summary_dto.matched_count > 0:
                             col1, col2 = st.columns([4, 1])
-                            col1.metric(
-                                label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
-                                value=f"{summary_dto.average_cost:,.1f} 円"
+                            col1.markdown(
+                                f"""
+                                <div style='line-height:1.2;'>
+                                    <div style='font-size:1rem; color:#333; margin-bottom:0.2rem;'>💰 {name} の平均金額 ({min_guests}〜{max_guests}人)</div>
+                                    <div style='font-size:2rem; font-weight:700; color:#222;'>{summary_dto.average_cost:,.1f} 円</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
                             )
                             col2.markdown(f"[式場ページを開く]({selected_venue.detail_url})")
                             st.success(f"{name} の条件に合致する明細が {summary_dto.matched_count} 件見つかりました。")
@@ -159,17 +164,27 @@ else:
                                     )
                         else:
                             col1, col2 = st.columns([4, 1])
-                            col1.metric(
-                                label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
-                                value="該当データなし"
+                            col1.markdown(
+                                f"""
+                                <div style='line-height:1.2;'>
+                                    <div style='font-size:1rem; color:#333; margin-bottom:0.2rem;'>💰 {name} の平均金額 ({min_guests}〜{max_guests}人)</div>
+                                    <div style='font-size:2rem; font-weight:700; color:#222;'>該当データなし</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
                             )
                             col2.markdown(f"[式場ページを開く]({selected_venue.detail_url})")
                             st.warning(f"⚠️ {name} に該当する費用明細データは見つかりませんでした。")
                     else:
                         col1, col2 = st.columns([4, 1])
-                        col1.metric(
-                            label=f"💰 {name} の平均金額 ({min_guests}〜{max_guests}人)",
-                            value="解析結果なし"
+                        col1.markdown(
+                            f"""
+                            <div style='line-height:1.2;'>
+                                <div style='font-size:1rem; color:#333; margin-bottom:0.2rem;'>💰 {name} の平均金額 ({min_guests}〜{max_guests}人)</div>
+                                <div style='font-size:2rem; font-weight:700; color:#222;'>解析結果なし</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
                         )
                         col2.markdown(f"[式場ページを開く]({selected_venue.detail_url})")
                         st.warning(f"⚠️ {name} の解析結果が取得できませんでした。")
